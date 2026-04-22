@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
 import multer from "multer"
-import pdfParse from "pdf-parse"
+import pdfParse from "pdf-parse/lib/pdf-parse.js"
 import mammoth from "mammoth"
 import dotenv from "dotenv"
 import { GoogleGenerativeAI } from "@google/generative-ai"
