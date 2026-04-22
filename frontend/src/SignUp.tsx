@@ -164,7 +164,7 @@ function SignUp() {
 						Create Account
 					</Typography>
 					<Typography variant="body2" color="text.secondary" mb={3}>
-						Join Quizzy to create and study flashcards
+						Join <GenFlash></GenFlash> to create and study flashcards
 					</Typography>
 
 					{error && (
