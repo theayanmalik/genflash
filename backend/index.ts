@@ -17,7 +17,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 const app = express()
 const PORT = process.env.PORT || 8080
 
-// CORS
+
 app.use(cors())
 
 app.use(express.json())
