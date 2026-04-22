@@ -17,9 +17,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 const app = express()
 const PORT = process.env.PORT || 8080
 
-
 app.use(cors())
-
 app.use(express.json())
 
 // File upload
@@ -28,11 +26,13 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 })
 
+// Health check
 app.get("/", (req, res) => {
   res.send("FlashcardProAI server is running!")
 })
 
-// 🔥 MAIN FLASHCARD API
+
+// 🔥 GENERATE FLASHCARDS
 app.post("/api/generate-flashcards", async (req, res) => {
   try {
     const { text, prompt, name } = req.body
@@ -41,18 +41,11 @@ app.post("/api/generate-flashcards", async (req, res) => {
       return res.status(400).json({ error: "Missing required parameters" })
     }
 
-    // System prompt
     const systemPrompt = `You are an expert teacher.
 
 Convert the study material into high-quality flashcards.
 
-Requirements:
-- Cover ALL important concepts
-- Include definitions, relationships, and examples
-- Avoid repetition
-
-Return ONLY valid JSON (no extra text):
-
+Return ONLY JSON:
 [
   {
     "question": "...",
@@ -68,16 +61,13 @@ User prompt: ${prompt}
 Content:
 ${text.substring(0, 5000)}`
 
-    console.log("Calling Gemini API...")
-
     const result = await model.generateContent(fullPrompt)
     const response = await result.response
     const responseText = response.text()
 
-    let flashcards: any
+    let flashcards
 
     try {
-      // Extract JSON safely
       const jsonRegex =
         /```(?:json)?\s*(\[[\s\S]*?\])\s*```|(\[[\s\S]*?\])/
       const match = responseText.match(jsonRegex)
@@ -88,30 +78,19 @@ ${text.substring(0, 5000)}`
         flashcards = JSON.parse(responseText)
       }
 
-      // ✅ VALIDATE (question/answer format)
-      if (
-        !Array.isArray(flashcards) ||
-        !flashcards.every(
-          (card: any) =>
-            typeof card === "object" &&
-            "question" in card &&
-            "answer" in card
-        )
-      ) {
-        throw new Error("Invalid flashcard format")
+      if (!Array.isArray(flashcards)) {
+        throw new Error("Invalid format")
       }
 
-      // ✅ CONVERT → frontend format
-      flashcards = flashcards.map((card: any) => ({
+      flashcards = flashcards.map((card) => ({
         front: card.question,
         back: card.answer,
         difficulty: card.difficulty || "medium",
       }))
     } catch (error) {
-      console.error("Failed to parse flashcards:", error, responseText)
+      console.error("Parse error:", error, responseText)
       return res.status(500).json({
         error: "Failed to generate valid flashcards",
-        rawResponse: responseText,
       })
     }
 
@@ -120,22 +99,22 @@ ${text.substring(0, 5000)}`
       name,
       count: flashcards.length,
     })
-  } catch (error: any) {
-    console.error("Error generating flashcards:", error)
+  } catch (error) {
+    console.error("Generation error:", error)
     res.status(500).json({
       error: "Failed to generate flashcards",
-      details: error.message,
     })
   }
 })
 
-// 📄 TEXT EXTRACTION
-app.post("/api/extract-text", upload.single("file"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" })
-  }
 
+// 📄 EXTRACT TEXT
+app.post("/api/extract-text", upload.single("file"), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" })
+    }
+
     let text = ""
     const fileType = req.file.mimetype
 
@@ -146,7 +125,9 @@ app.post("/api/extract-text", upload.single("file"), async (req, res) => {
       fileType ===
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
-      const result = await mammoth.extractRawText({ buffer: req.file.buffer })
+      const result = await mammoth.extractRawText({
+        buffer: req.file.buffer,
+      })
       text = result.value
     } else {
       return res.status(400).json({
@@ -155,27 +136,30 @@ app.post("/api/extract-text", upload.single("file"), async (req, res) => {
     }
 
     res.json({ text })
-  } catch (err) {
-    console.error("Text extraction error:", err)
+  } catch (error) {
+    console.error("Extraction error:", error)
     res.status(500).json({ error: "Failed to extract text" })
   }
 })
 
-// 📄 PDF UPLOAD
-app.post("/api/upload-pdf", upload.single("pdf"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" })
-  }
 
+// 📄 PDF UPLOAD (optional)
+app.post("/api/upload-pdf", upload.single("pdf"), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" })
+    }
+
     const data = await pdfParse(req.file.buffer)
     res.json({ text: data.text })
-  } catch (err) {
-    console.error("PDF parse error:", err)
+  } catch (error) {
+    console.error("PDF parse error:", error)
     res.status(500).json({ error: "Failed to parse PDF" })
   }
 })
 
+
+// START SERVER
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`)
 })
