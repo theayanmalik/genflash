@@ -79,11 +79,11 @@ function Home() {
 		<Container maxWidth="md">
 			<Box sx={{ mt: 8, textAlign: "center" }}>
 				<Typography variant="h2" component="h1" gutterBottom fontWeight="bold">
-					Quizzy
+					GenFlash
 				</Typography>
 
 				<Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4 }}>
-					{user ? `Welcome, ${user.email}` : "Welcome to Quizzy!"}
+					{user ? `Welcome, ${user.email}` : "Welcome to GenFlash!"}
 				</Typography>
 
 				<Typography variant="body1" paragraph>
