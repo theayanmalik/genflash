@@ -250,12 +250,12 @@ function Login() {
 						gutterBottom
 						sx={{ fontWeight: 600 }}
 					>
-						{showLoginForm ? "Sign In to Quizzy" : "Create Account"}
+						{showLoginForm ? "Sign In to GenFlash" : "Create Account"}
 					</Typography>
 					<Typography variant="body2" color="text.secondary" mb={3}>
 						{showLoginForm
 							? "Enter your credentials to access your account"
-							: "Join Quizzy to create and study flashcards"}
+							: "Join GenFlash to create and study flashcards"}
 					</Typography>
 
 					{error && (

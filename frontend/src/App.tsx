@@ -95,7 +95,7 @@ const Navigation = () => {
 							sx={{ flexGrow: 1 }}
 						>
 							<Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-								Quizzy
+								GenFlash
 							</Link>
 						</Typography>
 					</Box>
