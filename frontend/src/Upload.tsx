@@ -93,7 +93,7 @@ function Upload() {
 					formData.append("file", selectedFile)
 
 					const response = await fetch(
-						"https://quizzy-6ujo.onrender.com/api/extract-text",
+						"https://genflash.onrender.com/api/extract-text",
 						{
 							method: "POST",
 							body: formData,
@@ -183,7 +183,7 @@ function Upload() {
 
 			// Call the backend to generate flashcards
 			const response = await fetch(
-				"https://quizzy-6ujo.onrender.com/api/generate-flashcards",
+				"https://genflash.onrender.com/api/generate-flashcards",
 				{
 					method: "POST",
 					headers: {
