@@ -12,7 +12,7 @@ dotenv.config()
 const genAI = new GoogleGenerativeAI(
   process.env.GEMINI_API_KEY || ""
 )
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" })
+const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" })
 
 const app = express()
 const PORT = process.env.PORT || 8080
@@ -61,7 +61,14 @@ User prompt: ${prompt}
 Content:
 ${text.substring(0, 5000)}`
 
-    const result = await model.generateContent(fullPrompt)
+    const result = await model.generateContent({
+  contents: [
+    {
+      role: "user",
+      parts: [{ text: fullPrompt }]
+    }
+  ]
+})
     const response = await result.response
     const responseText = response.text()
 
