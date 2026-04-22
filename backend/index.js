@@ -101,8 +101,9 @@ ${text.substring(0, 5000)}`
     })
   } catch (error) {
     console.error("Generation error:", error)
-    res.status(500).json({
-      error: "Failed to generate flashcards",
+  res.status(500).json({
+  error: "Failed to generate flashcards",
+  details: error.message,
     })
   }
 })
